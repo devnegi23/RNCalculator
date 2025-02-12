@@ -1,6 +1,5 @@
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, Dimensions, StatusBar, SafeAreaView } from 'react-native';
-const screen = Dimensions.get("screen")
+import { View, Text, TouchableOpacity, StatusBar, SafeAreaView } from 'react-native';
 
 const buttons = [
   {
@@ -105,11 +104,11 @@ export default function App() {
   const [state, setState] = useState("2+2")
   const [result, setResult] = useState("");
 
-  const handleButtonPress = (action: string) => {
+  function handleButtonPress(action: string) {
     setResult("")
     switch (action) {
       case "=":
-        const finalNum = eval(state)
+        const finalNum = calculateResult()
         setResult(finalNum);
         setState(finalNum.toString())
         break;
@@ -120,12 +119,19 @@ export default function App() {
         break;
 
       default:
-        setState(state + action)
+        let res = state
+        if (isNaN(Number(res.slice(-1)))) {
+          res = res.slice(0, res.length - 1) + action
+        }
+        else {
+          res = state + action
+        }
+        setState(res)
         break;
     }
   }
 
-  const evaluatedResult = useMemo(() => {
+  function calculateResult() {
     let res = "";
     if (!isNaN(Number(state.slice(-1)))) {
       res = eval(state)
@@ -143,13 +149,16 @@ export default function App() {
     }
 
     return numberResult.toString();
+  }
+
+  const evaluatedResult = useMemo(() => {
+    return calculateResult()
   }, [state])
 
-  console.log({ state })
   return (
-    <SafeAreaView className='flex-1'>
-      <StatusBar />
-      <View className="flex-1 bg-neutral-100 dark:bg-neutral-900 justify-between">
+    <SafeAreaView className='flex-1 bg-neutral-100 dark:bg-neutral-900 p-4'>
+      <StatusBar className='bg-black dark:bg-white' />
+      <View className="flex-grow justify-between w-full max-w-lg mx-auto">
         <View className='flex-grow px-10 gap-4'>
           <View className='flex-grow items-end justify-end'>
             <Text className={'text-right  ' + (result ? "text-8xl text-black dark:text-white font-semibold" : "text-3xl text-neutral-500")}>{result || state}</Text>
@@ -158,10 +167,10 @@ export default function App() {
             {evaluatedResult}
           </Text>}
         </View>
-        <View className='flex items-center justify-center flex-row flex-wrap gap-4 p-4'>
+        <View className='flex items-center justify-between flex-row flex-wrap gap-4 p-4'>
           {
             buttons.map((button, index) => (
-              <CircleButton key={index} {...button} backgroundColor={(index + 1) % 4 === 0 ? 'bg-orange-400' : button.backgroundColor} onPress={() => handleButtonPress(button.action)} />
+              <CircleButton key={index} {...button} backgroundColor={(index + 1) % 4 === 0 ? 'bg-orange-500' : button.backgroundColor} onPress={() => handleButtonPress(button.action)} />
             ))
           }
         </View>
@@ -179,7 +188,7 @@ const CircleButton = ({
   text: string;
   onPress: () => void;
 }) => {
-  const size = screen.width / 4 - 20
+  const size = 78
   return (
     <TouchableOpacity onPress={onPress} style={{ width: size, height: size }} className={`${backgroundColor} rounded-full flex items-center justify-center`}>
       <Text className='text-4xl font-semibold text-black dark:text-white '>{text}</Text>

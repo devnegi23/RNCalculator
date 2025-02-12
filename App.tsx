@@ -101,7 +101,7 @@ const buttons = [
 
 
 export default function App() {
-  const [state, setState] = useState("2+2")
+  const [state, setState] = useState("")
   const [result, setResult] = useState("");
 
   function handleButtonPress(action: string) {
@@ -120,12 +120,26 @@ export default function App() {
 
       default:
         let res = state
-        if (isNaN(Number(res.slice(-1)))) {
-          res = res.slice(0, res.length - 1) + action
+        if (!res.length) {
+          res = action
+        }
+        else if (isNaN(Number(res.charAt(-1)))) {
+          console.log(1)
+          res = res.slice(0, res.length - 2) + action
+        }
+        else if (res.length > 1 && isNaN(Number(res.charAt(-2)))) {
+          console.log(2)
+          res = res.slice(0, res.length - 2) + action
+        }
+        else if (!res.length && isNaN(Number(res.charAt(-1))) && isNaN(Number(action))) {
+          console.log(3)
+          res = res.slice(0, res.length - 2) + action
         }
         else {
+          console.log(4)
           res = state + action
         }
+        console.log({ res })
         setState(res)
         break;
     }
@@ -133,7 +147,10 @@ export default function App() {
 
   function calculateResult() {
     let res = "";
-    if (!isNaN(Number(state.slice(-1)))) {
+    if (!state.length) {
+      return ""
+    }
+    if (!isNaN(parseInt(state.charAt(-1)))) {
       res = eval(state)
     }
     else {
